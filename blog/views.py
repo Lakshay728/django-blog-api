@@ -48,6 +48,6 @@ def post_detail(request, pk):
 
     elif request.method == 'DELETE':
         if post.owner != request.user:
-            return Response({'error': 'You can only delete your own posts!'}, status=403)
+            return Response({'error': 'You can only delete your own posts!!'}, status=403)
         post.delete()
         return Response({'message': 'Post deleted!'}, status=204)
