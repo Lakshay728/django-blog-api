@@ -4,6 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .serializers import PostSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 
 
 
@@ -18,6 +21,19 @@ def home(request):
 def post_list(request):
     if request.method == 'GET':
         posts = Post.objects.all()
+        search = request.query_params.get('search', None)
+        if search:
+            posts = posts.filter(title__icontains=search) | posts.filter(content__icontains=search)
+
+        # Filter by owner
+        owner = request.query_params.get('owner', None)
+        if owner:
+            posts = posts.filter(owner__username=owner)
+
+        # Ordering
+        ordering = request.query_params.get('ordering', '-created_at')
+        posts = posts.order_by(ordering)
+        
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
