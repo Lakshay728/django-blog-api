@@ -1,0 +1,30 @@
+{% extends 'blog/base.html' %}
+{% block title %}New Post{% endblock %}
+{% block content %}
+
+<div style="background:white; padding:32px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <h1 style="margin-bottom:24px;">Create New Post</h1>
+
+    {% if error %}
+        <div class="message error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/create/" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom:16px;">
+            <label style="display:block; margin-bottom:6px; font-weight:500;">Title</label>
+            <input name="title" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:1rem;">
+        </div>
+        <div style="margin-bottom:16px;">
+            <label style="display:block; margin-bottom:6px; font-weight:500;">Content</label>
+            <textarea name="content" rows="6" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:1rem;"></textarea>
+        </div>
+        <div style="margin-bottom:24px;">
+            <label style="display:block; margin-bottom:6px; font-weight:500;">Image (optional)</label>
+            <input name="image" type="file" accept="image/*">
+        </div>
+        <button type="submit" class="btn" style="padding:12px 32px;">Publish Post</button>
+    </form>
+</div>
+
+{% endblock %}

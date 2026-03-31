@@ -1,0 +1,26 @@
+{% extends 'blog/base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+<div style="max-width:400px; margin:0 auto; background:white; padding:32px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+    <h1 style="margin-bottom:24px;">Login</h1>
+
+    {% if error %}
+        <div class="message error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login/">
+        {% csrf_token %}
+        <div style="margin-bottom:16px;">
+            <label style="display:block; margin-bottom:6px; font-weight:500;">Username</label>
+            <input name="username" type="text" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:1rem;">
+        </div>
+        <div style="margin-bottom:24px;">
+            <label style="display:block; margin-bottom:6px; font-weight:500;">Password</label>
+            <input name="password" type="password" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:1rem;">
+        </div>
+        <button type="submit" class="btn" style="width:100%; padding:12px;">Login</button>
+    </form>
+</div>
+
+{% endblock %}
