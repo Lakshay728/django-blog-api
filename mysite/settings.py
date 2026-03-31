@@ -92,11 +92,13 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('postgresql://django_blog_db_wh6m_user:E6krokmmd6mcjUNF35V8gam3Qw9KHMob@dpg-d75v8uua2pns73flacug-a/django_blog_db_wh6m'),
+        conn_max_age=600
+    )
 }
 
 
