@@ -96,7 +96,7 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('postgresql://django_blog_db_wh6m_user:E6krokmmd6mcjUNF35V8gam3Qw9KHMob@dpg-d75v8uua2pns73flacug-a/django_blog_db_wh6m'),
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600
     )
 }
