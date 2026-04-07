@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .serializers import PostSerializer
+from django.core.cache import cache
+
 
 def home(request):
     posts = Post.objects.all().order_by('-created_at')
@@ -41,25 +43,38 @@ def create_post_page(request):
         return redirect('/')
     return render(request, 'blog/create_post.html')
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def post_list(request):
     if request.method == 'GET':
-        posts = Post.objects.all()
-        search = request.query_params.get('search', None)
-        if search:
-            posts = posts.filter(title__icontains=search) | posts.filter(content__icontains=search)
-        owner = request.query_params.get('owner', None)
-        if owner:
-            posts = posts.filter(owner__username=owner)
-        ordering = request.query_params.get('ordering', '-created_at')
-        posts = posts.order_by(ordering)
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+        cache_key = 'posts_list'
+        posts_data = cache.get(cache_key)
+
+        if posts_data is None:
+            posts = Post.objects.all()
+            search = request.query_params.get('search', None)
+            if search:
+                posts = posts.filter(title__icontains=search) | posts.filter(content__icontains=search)
+            owner = request.query_params.get('owner', None)
+            if owner:
+                posts = posts.filter(owner__username=owner)
+            ordering = request.query_params.get('ordering', '-created_at')
+            posts = posts.order_by(ordering)
+            serializer = PostSerializer(posts, many=True)
+            cache.set(cache_key, serializer.data, timeout=60*15)
+            posts_data = serializer.data
+            print('📦 Data from DATABASE')
+        else:
+            print('⚡ Data from CACHE')
+
+        return Response(posts_data)
+
     elif request.method == 'POST':
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user)
+            cache.delete('posts_list')
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
