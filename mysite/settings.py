@@ -52,8 +52,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'blog.middleware.RequestLoggerMiddleware',      
+    'blog.middleware.MaintenanceModeMiddleware',
 ]
 
+MAINTENANCE_MODE = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
