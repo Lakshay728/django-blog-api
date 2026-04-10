@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from .serializers import PostSerializer
 from django.core.cache import cache
+from .tasks import notify_new_post
 
 
 def home(request):
@@ -50,7 +51,6 @@ def post_list(request):
     if request.method == 'GET':
         cache_key = 'posts_list'
         posts_data = cache.get(cache_key)
-
         if posts_data is None:
             posts = Post.objects.all()
             search = request.query_params.get('search', None)
@@ -64,10 +64,6 @@ def post_list(request):
             serializer = PostSerializer(posts, many=True)
             cache.set(cache_key, serializer.data, timeout=60*15)
             posts_data = serializer.data
-            print('📦 Data from DATABASE')
-        else:
-            print('⚡ Data from CACHE')
-
         return Response(posts_data)
 
     elif request.method == 'POST':
@@ -75,6 +71,10 @@ def post_list(request):
         if serializer.is_valid():
             serializer.save(owner=request.user)
             cache.delete('posts_list')
+            notify_new_post.delay(
+                serializer.data['title'],
+                request.user.username
+            )
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
